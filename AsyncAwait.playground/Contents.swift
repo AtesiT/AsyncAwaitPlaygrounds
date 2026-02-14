@@ -60,13 +60,34 @@ func uploadUpd(result: Int) async -> String {
     "OK"
 }
 
-func processWeather() async {
-    let records = await fetchWeatherHistoryUpd()
-    let average = await calculateAverageTemperatureUpd(for: records)
-    let response = await uploadUpd(result: average)
-    
-    print("Server response: \(response)")
-    
+//  The First way
+
+func processWeather() {
+    Task {
+        let records = await fetchWeatherHistoryUpd()
+        let average = await calculateAverageTemperatureUpd(for: records)
+        let response = await uploadUpd(result: average)
+        
+        print("Server response: \(response)")
+    }
+}
+
+processWeather()
+
+func processWeatherUpd() async {
+    Task {
+        let records = await fetchWeatherHistoryUpd()
+        let average = await calculateAverageTemperatureUpd(for: records)
+        let response = await uploadUpd(result: average)
+        
+        print("Server response: \(response)")
+    }
+}
+
+//  The Second way
+
+Task {
+    await processWeatherUpd()
 }
 
 //  MARK: - Just a func with fetchCourses
@@ -104,10 +125,15 @@ func fetchCourses() async throws -> [Course] {
     }
 }
 
-func testFuncFetchCourses() async {
-    do {
-        let courses = try await fetchCourses()
-    } catch {
-        print(error)
+func testFuncFetchCourses() {
+    //  Благодаря Task, функция может вызываться во viewDidLoad, а асинхронная функция может выполниться в синхронном потоке
+    //  Мы распаралелливаем.
+    Task {
+        do {
+            let courses = try await fetchCourses()
+            print(courses)
+        } catch {
+            print(error)
+        }
     }
 }
