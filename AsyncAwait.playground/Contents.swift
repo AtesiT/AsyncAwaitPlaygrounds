@@ -68,3 +68,46 @@ func processWeather() async {
     print("Server response: \(response)")
     
 }
+
+//  MARK: - Just a func with fetchCourses
+
+struct Course: Decodable {
+    let id: Int
+    let userId: Int
+    let title: String
+    let body: String
+}
+
+enum NetworkError: Error {
+    case NetworkError
+    case DataError
+}
+
+
+let url = "https://jsonplaceholder.typicode.com/posts/1"
+
+    //  The Funcs
+
+func fetchCourses() async throws -> [Course] {
+    guard let url = URL(string: url) else {
+        throw NetworkError.NetworkError
+    }
+    
+    let (data, _) = try await URLSession.shared.data(from: url)
+    let decoder = JSONDecoder()
+    decoder.keyDecodingStrategy = .convertFromSnakeCase
+    
+    do {
+        return try decoder.decode([Course].self, from: data)
+    } catch {
+        throw NetworkError.DataError
+    }
+}
+
+func testFuncFetchCourses() async {
+    do {
+        let courses = try await fetchCourses()
+    } catch {
+        print(error)
+    }
+}
