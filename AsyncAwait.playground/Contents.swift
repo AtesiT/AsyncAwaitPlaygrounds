@@ -13,3 +13,27 @@ func fetchWeatherHistory(completion: @escaping ([Int]) -> Void) {
     }
 }
 
+func calculateAverageTemperature(for records: [Int], completion: @escaping(Int) -> Void) {
+    //  Начиная с нулевого индекса, высчитываем сумму всех чисел в массиве
+    let total = records.reduce(0, +)
+    let average = total / records.count
+    
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        completion(average)
+    }
+}
+
+func upload(result: Int, completion: @escaping (String) -> Void) {
+    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        completion("OK")
+    }
+}
+
+fetchWeatherHistory { records in
+    calculateAverageTemperature(for: records) { average in
+        print("Average temperature \(average)")
+        upload(result: average) { response in
+            print("Server response: \(response)")
+        }
+    }
+}
