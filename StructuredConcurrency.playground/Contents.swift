@@ -37,9 +37,9 @@ func setFibonacciSequenceUpd(to numberCount: Int) async {
     print("The first \(numberCount) numbers in the fibonacci sequence are: \(result)")
 }
 
-Task {
-    await setFibonacciSequence(to: 60)
-}
+//Task {
+//    await setFibonacciSequence(to: 60)
+//}
 
 //  В примере выше, мы вызвали обычную последовательную функцию внутри асинхронной функции
 
@@ -63,7 +63,35 @@ func getWeatherReadings(for city: String) async throws -> [Int] {
     }
 }
 
+//Task {
+//    let readings = try await getWeatherReadings(for: "Sochi")
+//    print("Readings are: \(readings)")
+//}
+
+
+func runMultipleCalculation() async throws {
+    let fibonacciTask = Task {
+        //  Это обычная функция
+        (1...60).map(fibonacci)
+    }
+    
+    let weatherTask = Task {
+        //  Это функция выкидывает throws
+        try await getWeatherReadings(for: "Sochi")
+    }
+    
+    //  Результаты хранятся в свойствах value
+    
+    let fibonacciResult = await fibonacciTask.value
+    // Первая функция вызывается без try, потому что первая функция не выкидывает throws (она может выкидывать, но не делает этого). Сама функция без try вызывалась.
+    let weatherResult = try await weatherTask.value
+    //  Вторую функцию вызываем через try, потому что сама функции вызывается с поомощью try.
+    
+    print("The first 60 numbers in the fibonacci sequence are: \(fibonacciResult)")
+    print("Readings are: \(weatherResult)")
+}
+
+//  Вызываем функцию, которую мы сделали выше
 Task {
-    let readings = try await getWeatherReadings(for: "Sochi")
-    print("Readings are: \(readings)")
+    try await runMultipleCalculation()
 }
