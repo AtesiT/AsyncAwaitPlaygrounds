@@ -121,3 +121,31 @@ func cancelSleepingTask() async {
 Task {
     await cancelSleepingTask()
 }
+
+//  MARK: - Func with withTaskGroup
+
+func printMessage() async {
+    //  Создаем группу с задачами
+    //  Мы работаем в пределах одного типа
+    let string = await withTaskGroup(of: String.self) { group in
+        //  Group - это коллекция
+        group.addTask { "Hello" }
+        group.addTask { "From" }
+        group.addTask { "Task" }
+        group.addTask { "Group" }
+        
+        var message: [String] = []
+        
+        //  Берем каждое значение, которое нам возвращает задача и помещаем это значение в массив
+        //  Если с точки зрения производительности, эти задачи были бы разные, то они были бы выданы в ином порядке.
+        for await value in group {
+            message.append(value)
+        }
+        return message.joined(separator: " ")
+    }
+    print(string)
+}
+
+Task {
+    await printMessage()
+}
