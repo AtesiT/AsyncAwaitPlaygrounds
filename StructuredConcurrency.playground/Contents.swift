@@ -95,3 +95,29 @@ func runMultipleCalculation() async throws {
 Task {
     try await runMultipleCalculation()
 }
+
+//  MARK: - Функция для отмены задачи
+func cancelSleepingTask() async {
+    let task = Task {
+        print("Starting")
+        //  Будто отправили запрос на сервер и ожидаем в течении секунды
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+        //  Проверяем, не отменили-ли задачу, пока мы ждем.
+        try Task.checkCancellation()
+        //  Если не отмели задачу, то она выполнится, если отменили - нет.
+        return "Done"
+    }
+    //  Отменяем задачу. Если не отменить, то выведется "Done"
+    task.cancel()
+    do {
+        //  Результат задачи
+        let result = try await task.value
+        print(result)
+    } catch {
+        print("Task was cancelled")
+    }
+}
+
+Task {
+    await cancelSleepingTask()
+}
