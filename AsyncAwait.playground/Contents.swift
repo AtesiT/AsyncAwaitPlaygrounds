@@ -137,3 +137,31 @@ func testFuncFetchCourses() {
         }
     }
 }
+
+//  MARK: - Continuation
+
+func fetchCoursesWithContinuation() async throws -> [Course] {
+    try await withCheckedThrowingContinuation { continuation in
+        //  TODO: - NEED FIX
+        fetchCourses { result in
+            switch result {
+            case .success(let courses):
+                //  Массив возвращаем в среду с "новыми технологиями"
+                continuation.resume(returning: courses)
+            case .failure(let error):
+                continuation.resume(throwing: error)
+            }
+        }
+    }
+}
+
+func testFuncFetchCoursesWithContinuation() {
+    Task {
+        do {
+            let courses = try await fetchCoursesWithContinuation()
+            print(courses)
+        } catch {
+            print(error)
+        }
+    }
+}
